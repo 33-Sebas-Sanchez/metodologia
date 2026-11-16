@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Datos generados (se regeneran con los scripts)
+data/processed/*.csv
+data/raw/precio_btc.csv
+
+# Resultados generados
+resultados/*.png
+resultados/*.csv
+
+# Sistema
+.DS_Store
+.ipynb_checkpoints/
