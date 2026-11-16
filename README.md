@@ -16,7 +16,9 @@ sentimiento-btc/
 │   ├── preprocessing.py     # limpieza, tokens, stopwords, lematización
 │   ├── resumen_etiquetado.py # control de calidad del etiquetado
 │   ├── vectorizacion.py     # TF-IDF (Fase 3)
-│   └── entrenamiento.py     # Regresión Logística + SVM + métricas (Fase 3)
+│   ├── entrenamiento.py     # Regresión Logística + SVM + métricas (Fase 3)
+│   ├── precio_btc.py        # descarga histórico de precio BTC (Fase 4)
+│   └── indicador_sentimiento.py # indicador S_t + cotejo con precio (Fase 4)
 ├── requerimientos.txt
 └── README.md
 ```
@@ -25,8 +27,8 @@ sentimiento-btc/
 
 - **Fase 1** — Construcción del corpus (180 noticias)
 - **Fase 2** — Etiquetado y setup
-- **Fase 3** — Vectorización TF-IDF + entrenamiento ← estás aquí
-- **Fase 4** — Datos de precio BTC + indicador S_t
+- **Fase 3** — Vectorización TF-IDF + entrenamiento
+- **Fase 4** — Datos de precio BTC + indicador S_t ← estás aquí
 - **Fase 5** — Evaluación (Accuracy, Precision, Recall, F1)
 
 ## Setup
@@ -89,3 +91,32 @@ El corpus contiene muchas noticias casi duplicadas (cada nota base se repite com
 métricas salgan **muy altas** (posible sobreestimación). Conviene documentarlo en
 "Limitaciones" y, si se quiere una estimación más realista, agrupar los duplicados
 antes de separar train/test para evitar fuga de información entre particiones.
+
+## Ejecución de la Fase 4 (precio BTC + indicador S_t)
+
+```bash
+# 1. Descargar el histórico de precios de BTC (elige una fuente)
+python src/precio_btc.py --fuente coingecko --dias 60
+#   o, si prefieres yfinance:
+# python src/precio_btc.py --fuente yfinance --inicio 2026-09-01 --fin 2026-10-20
+
+# 2. Calcular el indicador S_t y cruzarlo con el precio
+python src/indicador_sentimiento.py --frecuencia D    # diario
+python src/indicador_sentimiento.py --frecuencia W    # semanal
+```
+
+### Indicador de sentimiento neto
+
+Según la sección 3.6 del anteproyecto:
+
+```
+S_t = (N_pos,t - N_neg,t) / (N_pos,t + N_neg,t + N_neu,t)
+```
+
+`indicador_sentimiento.py` genera:
+- `data/processed/indicador_sentimiento.csv` — S_t por periodo.
+- `data/processed/sentimiento_vs_precio.csv` — S_t cruzado con el precio y el retorno diario.
+- La **correlación exploratoria** entre S_t y el retorno del BTC (Objetivo Específico 3).
+
+> El análisis es **exploratorio**: una correlación no implica causalidad, y el corpus
+> cubre un periodo corto (oct. 2026). Interpretar con cautela en el informe.
