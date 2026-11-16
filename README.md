@@ -18,7 +18,9 @@ sentimiento-btc/
 │   ├── vectorizacion.py     # TF-IDF (Fase 3)
 │   ├── entrenamiento.py     # Regresión Logística + SVM + métricas (Fase 3)
 │   ├── precio_btc.py        # descarga histórico de precio BTC (Fase 4)
-│   └── indicador_sentimiento.py # indicador S_t + cotejo con precio (Fase 4)
+│   ├── indicador_sentimiento.py # indicador S_t + cotejo con precio (Fase 4)
+│   └── evaluacion.py        # evaluación integral + gráficas (Fase 5)
+├── resultados/              # métricas y gráficas generadas (Fase 5)
 ├── requerimientos.txt
 └── README.md
 ```
@@ -28,8 +30,8 @@ sentimiento-btc/
 - **Fase 1** — Construcción del corpus (180 noticias)
 - **Fase 2** — Etiquetado y setup
 - **Fase 3** — Vectorización TF-IDF + entrenamiento
-- **Fase 4** — Datos de precio BTC + indicador S_t ← estás aquí
-- **Fase 5** — Evaluación (Accuracy, Precision, Recall, F1)
+- **Fase 4** — Datos de precio BTC + indicador S_t
+- **Fase 5** — Evaluación (Accuracy, Precision, Recall, F1) ← estás aquí
 
 ## Setup
 
@@ -120,3 +122,30 @@ S_t = (N_pos,t - N_neg,t) / (N_pos,t + N_neg,t + N_neu,t)
 
 > El análisis es **exploratorio**: una correlación no implica causalidad, y el corpus
 > cubre un periodo corto (oct. 2026). Interpretar con cautela en el informe.
+
+## Ejecución de la Fase 5 (evaluación integral)
+
+`evaluacion.py` es el orquestador final: entrena los dos modelos con validación
+cruzada, reporta todas las métricas frente al Gold Standard y genera las gráficas.
+
+```bash
+# (recomendado) descargar primero el precio para la gráfica S_t vs precio
+python src/precio_btc.py --fuente coingecko --dias 60
+
+# evaluación completa (métricas + matrices de confusión + gráfica S_t vs precio)
+python src/evaluacion.py --cv 5
+```
+
+Genera en `resultados/`:
+- `resumen_metricas.csv` — Accuracy, Precisión, Recall y F1 (macro) de cada modelo.
+- `matriz_confusion_regresion_logistica.png` y `matriz_confusion_svm_lineal.png`.
+- `sentimiento_vs_precio.png` — S_t y precio del BTC en doble eje (o `indicador_St.png`
+  si no hay datos de precio).
+
+### Pipeline completo de principio a fin
+
+```bash
+python src/preprocessing.py            # Fase 2/3: preprocesa el corpus
+python src/precio_btc.py --dias 60     # Fase 4: precio de BTC
+python src/evaluacion.py --cv 5        # Fase 3/5: entrena, evalúa y grafica
+```
