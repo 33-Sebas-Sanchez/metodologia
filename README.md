@@ -49,6 +49,4 @@ python -m spacy download es_core_news_sm
 | `categoria`  | Eje temático del corpus (1–6)                             |
 | `sentimiento`| Etiqueta: `positivo`, `negativo` o `neutro`               |
 
-> El etiquetado es una **propuesta base** generada automáticamente siguiendo un
-> criterio financiero. El equipo debe revisarlo manualmente para construir el
-> *Gold Standard* (ver Fase 2 del anteproyecto).
+
